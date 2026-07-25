@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Entire MCU, Explained</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0c10;
+    --surface:#12151b;
+    --surface2:#171b22;
+    --line:#232833;
+    --cream:#f1ece0;
+    --muted:#8891a0;
+    --gold:#c9a24d;
+    --gold-dim:#8a733a;
+    --crimson:#c1272d;
+    --blue:#5b8dd6;
+    --green:#4caf7d;
+    --purple:#9b7fd6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'Space Grotesk',sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(10,12,16,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    transition:transform .3s ease;
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .brand{font-family:'Archivo Black',sans-serif;font-size:15px;letter-spacing:0.5px;}
+  .brand span{color:var(--gold);}
+  .navlinks{display:flex;gap:28px;font-size:13px;letter-spacing:0.3px;color:var(--muted);}
+  .navlinks a{transition:color .2s;white-space:nowrap;}
+  .navlinks a:hover{color:var(--gold);}
+  .navlinks a:focus-visible, a:focus-visible, button:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+  #navToggle{display:none;background:none;border:1px solid var(--line);color:var(--cream);padding:8px 12px;border-radius:6px;font-size:13px;cursor:pointer;}
+  @media (max-width:860px){
+    .navlinks{position:fixed;top:64px;left:0;right:0;background:var(--bg);flex-direction:column;padding:20px 32px;border-bottom:1px solid var(--line);display:none;gap:16px;}
+    .navlinks.open{display:flex;}
+    #navToggle{display:block;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+    position:relative;
+    padding-top:64px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 700px 500px at 78% 30%, rgba(201,162,77,0.10), transparent 60%),
+      radial-gradient(ellipse 600px 500px at 10% 80%, rgba(193,39,45,0.08), transparent 60%);
+    pointer-events:none;
+  }
+  .stone-row{display:flex;gap:10px;margin-bottom:28px;}
+  .stone-dot{width:9px;height:9px;border-radius:50%;opacity:0.55;animation:pulse 3.2s ease-in-out infinite;}
+  .stone-dot:nth-child(1){background:var(--blue);animation-delay:0s;}
+  .stone-dot:nth-child(2){background:#e0c141;animation-delay:.4s;}
+  .stone-dot:nth-child(3){background:var(--crimson);animation-delay:.8s;}
+  .stone-dot:nth-child(4){background:var(--purple);animation-delay:1.2s;}
+  .stone-dot:nth-child(5){background:var(--green);animation-delay:1.6s;}
+  .stone-dot:nth-child(6){background:#e08a3d;animation-delay:2s;}
+  @keyframes pulse{0%,100%{opacity:0.35;transform:scale(1);}50%{opacity:1;transform:scale(1.3);}}
+
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:18px;}
+  .hero h1{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(42px,8vw,96px);
+    line-height:0.98;
+    letter-spacing:-1px;
+    max-width:900px;
+  }
+  .hero h1 .accent{color:var(--gold);}
+  .hero p.lede{
+    max-width:560px;color:var(--muted);font-size:17px;margin-top:26px;line-height:1.65;
+  }
+  .hero-meta{
+    display:flex;gap:32px;margin-top:48px;flex-wrap:wrap;
+  }
+  .hero-meta div{border-left:2px solid var(--gold-dim);padding-left:14px;}
+  .hero-meta .num{font-family:'Archivo Black',sans-serif;font-size:26px;color:var(--gold);display:block;}
+  .hero-meta .lbl{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+  .scroll-cue{position:absolute;bottom:36px;left:32px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:10px;}
+  .scroll-cue .line{width:36px;height:1px;background:var(--muted);animation:extend 2s ease-in-out infinite;}
+  @keyframes extend{0%,100%{width:20px;opacity:.4;}50%{width:44px;opacity:1;}}
+
+  /* ---------- SECTION SHARED ---------- */
+  section{padding:110px 0;border-bottom:1px solid var(--line);position:relative;}
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:56px;gap:24px;flex-wrap:wrap;}
+  .sec-num{font-family:'Archivo Black',sans-serif;font-size:120px;color:var(--surface2);position:absolute;top:40px;right:32px;line-height:1;z-index:0;user-select:none;}
+  @media (max-width:700px){.sec-num{display:none;}}
+  .sec-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
+  .sec-head h2{font-family:'Archivo Black',sans-serif;font-size:clamp(30px,4.2vw,48px);letter-spacing:-0.5px;max-width:680px;}
+  .sec-head p{color:var(--muted);max-width:420px;font-size:15px;line-height:1.6;}
+
+  /* ---------- SAGAS ---------- */
+  .saga-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media (max-width:800px){.saga-cards{grid-template-columns:1fr;}}
+  .saga-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:28px;position:relative;overflow:hidden;}
+  .saga-card.infinity{border-top:3px solid var(--gold);}
+  .saga-card.multiverse{border-top:3px solid var(--blue);}
+  .saga-card h3{font-family:'Archivo Black',sans-serif;font-size:24px;margin-bottom:6px;}
+  .saga-card .yrs{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:20px;display:block;}
+  .phase-row{display:flex;flex-direction:column;gap:12px;}
+  .phase-item{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13px;}
+  .phase-item:first-child{border-top:none;}
+  .phase-item .ph{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;white-space:nowrap;}
+  .phase-item .desc{color:var(--muted);text-align:right;}
+
+  /* ---------- MOVIES ---------- */
+  .filter-row{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap;}
+  .filter-btn{
+    background:var(--surface);border:1px solid var(--line);color:var(--muted);
+    padding:8px 16px;border-radius:20px;font-size:12px;font-family:'JetBrains Mono',monospace;
+    cursor:pointer;transition:all .2s;
+  }
+  .filter-btn:hover{border-color:var(--gold-dim);color:var(--cream);}
+  .filter-btn.active{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:600;}
+  .movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+  .movie-card{
+    background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--muted);
+    border-radius:6px;padding:16px 18px;min-height:108px;display:flex;flex-direction:column;justify-content:space-between;
+    transition:transform .2s, border-color .2s;
+  }
+  .movie-card:hover{transform:translateY(-3px);border-color:var(--gold-dim);}
+  .movie-card.milestone{border-left-color:var(--crimson);background:linear-gradient(160deg, rgba(193,39,45,0.08), var(--surface));}
+  .movie-card .title{font-size:14px;font-weight:600;line-height:1.3;}
+  .movie-card .title .star{color:var(--gold);}
+  .movie-card .yr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:10px;}
+  .movie-card[data-phase="1"]{border-left-color:var(--blue);}
+  .movie-card[data-phase="2"]{border-left-color:var(--green);}
+  .movie-card[data-phase="3"]{border-left-color:var(--gold);}
+  .movie-card[data-phase="4"]{border-left-color:var(--blue);}
+  .movie-card[data-phase="5"]{border-left-color:var(--green);}
+  .movie-card[data-phase="6"]{border-left-color:var(--gold);}
+  .movie-card[data-phase="up"]{border-left-color:var(--crimson);}
+
+  /* ---------- STONES ---------- */
+  .stones-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:760px){.stones-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:480px){.stones-grid{grid-template-columns:1fr;}}
+  .stone-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;
+    border-top:3px solid var(--stone-color, var(--gold));
+    transition:transform .25s;
+  }
+  .stone-card:hover{transform:translateY(-4px);}
+  .stone-card .dot{width:14px;height:14px;border-radius:50%;background:var(--stone-color);margin-bottom:14px;box-shadow:0 0 14px var(--stone-color);}
+  .stone-card h4{font-family:'Archivo Black',sans-serif;font-size:19px;margin-bottom:4px;}
+  .stone-card .src{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:block;}
+  .stone-card p{font-size:13px;color:var(--muted);line-height:1.55;}
+
+  /* ---------- VILLAINS / THREAT INDEX ---------- */
+  .threat-list{display:flex;flex-direction:column;gap:14px;}
+  .threat-row{display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:center;}
+  @media (max-width:600px){.threat-row{grid-template-columns:120px 1fr;}}
+  .threat-name{font-size:13px;font-weight:600;}
+  .threat-goal{font-size:11px;color:var(--muted);font-weight:400;display:block;}
+  .threat-bar-bg{background:var(--surface2);height:8px;border-radius:4px;overflow:hidden;}
+  .threat-bar{height:100%;border-radius:4px;width:0;transition:width 1.4s cubic-bezier(.2,.8,.2,1);}
+
+  /* ---------- MULTIVERSE ---------- */
+  .earth-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:760px){.earth-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:480px){.earth-grid{grid-template-columns:1fr;}}
+  .earth-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;}
+  .earth-card .id{font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--gold);}
+  .earth-card h4{font-size:15px;margin:6px 0 10px;}
+  .earth-card p{font-size:12.5px;color:var(--muted);line-height:1.55;}
+
+  /* ---------- POWER TIERS ---------- */
+  .tier{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:center;padding:16px 20px;background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-bottom:10px;border-left:4px solid var(--tier-color);}
+  @media (max-width:640px){.tier{grid-template-columns:1fr;gap:8px;}}
+  .tier .tname{font-family:'Archivo Black',sans-serif;font-size:16px;color:var(--tier-color);}
+  .tier .ttag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+  .tier .tmembers{font-size:13px;color:var(--muted);}
+
+  /* ---------- WATCH ORDER TABS ---------- */
+  .tabs{display:flex;gap:6px;margin-bottom:28px;flex-wrap:wrap;}
+  .tab-btn{background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:10px 18px;border-radius:8px;font-size:12.5px;cursor:pointer;transition:all .2s;}
+  .tab-btn.active{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:700;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;animation:fadeIn .4s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .order-flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+  .order-step{background:var(--surface);border:1px solid var(--line);padding:10px 16px;border-radius:20px;font-size:13px;}
+  .order-arrow{color:var(--gold-dim);font-size:16px;}
+  .order-note{color:var(--muted);font-size:13px;margin-top:20px;max-width:600px;}
+
+  /* ---------- DOOMSDAY ---------- */
+  .doomsday{background:linear-gradient(160deg, rgba(193,39,45,0.07), var(--bg) 60%);}
+  .checklist{display:grid;grid-template-columns:1fr 1fr;gap:12px 32px;margin-top:10px;}
+  @media (max-width:700px){.checklist{grid-template-columns:1fr;}}
+  .check-item{display:flex;gap:14px;padding:16px 0;border-top:1px solid var(--line);}
+  .check-item:nth-child(1),.check-item:nth-child(2){border-top:none;}
+  .check-num{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px;flex-shrink:0;}
+  .check-item h5{font-size:14px;margin-bottom:4px;}
+  .check-item p{font-size:12.5px;color:var(--muted);}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:2px 6px;border-radius:3px;margin-left:8px;text-transform:uppercase;}
+  .tag.canon{background:rgba(76,175,125,0.15);color:var(--green);}
+  .tag.theory{background:rgba(91,141,214,0.15);color:var(--blue);}
+
+  .finale-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:36px;}
+  @media (max-width:700px){.finale-cards{grid-template-columns:1fr;}}
+  .finale-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;}
+  .finale-card .date{font-family:'JetBrains Mono',monospace;color:var(--crimson);font-size:12px;}
+  .finale-card h4{font-family:'Archivo Black',sans-serif;font-size:20px;margin:8px 0 10px;}
+  .finale-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:60px 0 40px;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  footer .fbrand{font-family:'Archivo Black',sans-serif;font-size:16px;}
+  footer .fmeta{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+  ::selection{background:var(--gold);color:#0a0c10;}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">THE ENTIRE <span>MCU</span>, EXPLAINED</div>
+    <button id="navToggle" aria-label="Toggle navigation">Menu</button>
+    <div class="navlinks" id="navLinks">
+      <a href="#sagas">Sagas</a>
+      <a href="#movies">Movies</a>
+      <a href="#stones">Stones</a>
+      <a href="#villains">Villains</a>
+      <a href="#multiverse">Multiverse</a>
+      <a href="#power">Power Scale</a>
+      <a href="#watch">Watch Order</a>
+      <a href="#doomsday">Doomsday</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div class="stone-row" aria-hidden="true">
+      <div class="stone-dot"></div><div class="stone-dot"></div><div class="stone-dot"></div>
+      <div class="stone-dot"></div><div class="stone-dot"></div><div class="stone-dot"></div>
+    </div>
+    <div class="eyebrow">Editorial Field Guide · First Edition 2026</div>
+    <h1>The Entire <span class="accent">MCU</span>,<br>Explained.</h1>
+    <p class="lede">From Tony Stark's first flight to Doctor Doom's arrival — an illustrated, interactive guide to the Infinity Saga, the Multiverse, and the road to Avengers: Doomsday.</p>
+    <div class="hero-meta">
+      <div><span class="num">2</span><span class="lbl">Sagas</span></div>
+      <div><span class="num">6</span><span class="lbl">Phases</span></div>
+      <div><span class="num">28</span><span class="lbl">Films Tracked</span></div>
+      <div><span class="num">17</span><span class="lbl">Series Tracked</span></div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span class="line"></span> SCROLL</div>
+</header>
+
+<!-- SAGAS -->
+<section id="sagas">
+  <div class="wrap">
+    <div class="sec-num">01</div>
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Part One</div>
+        <h2>Phases &amp; Sagas</h2>
+      </div>
+      <p>The MCU is organised into phases that group into two giant sagas. Each saga builds to an Avengers finale.</p>
+    </div>
+    <div class="saga-cards">
+      <div class="saga-card infinity reveal">
+        <h3>The Infinity Saga</h3>
+        <span class="yrs">2008 – 2019 · Phases 1–3 · 23 films</span>
+        <div class="phase-row">
+          <div class="phase-item"><span class="ph">PHASE 1 · 2008–12</span><span class="desc">Iron Man → The Avengers</span></div>
+          <div class="phase-item"><span class="ph">PHASE 2 · 2013–15</span><span class="desc">Iron Man 3 → Ant-Man</span></div>
+          <div class="phase-item"><span class="ph">PHASE 3 · 2016–19</span><span class="desc">Civil War → Endgame + Far From Home</span></div>
+        </div>
+      </div>
+      <div class="saga-card multiverse reveal">
+        <h3>The Multiverse Saga</h3>
+        <span class="yrs">2021 – 2027 · Phases 4–6 · in progress</span>
+        <div class="phase-row">
+          <div class="phase-item"><span class="ph">PHASE 4 · 2021–22</span><span class="desc">WandaVision → the Disney+ era begins</span></div>
+          <div class="phase-item"><span class="ph">PHASE 5 · 2023–25</span><span class="desc">Quantumania → Thunderbolts*</span></div>
+          <div class="phase-item"><span class="ph">PHASE 6 · 2025–27</span><span class="desc">Fantastic Four → Doomsday → Secret Wars</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MOVIES -->
+<section id="movies">
+  <div class="wrap">
+    <div class="sec-num">02</div>
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Part Two</div>
+        <h2>Every MCU Film</h2>
+      </div>
+      <p>Filter by phase to see the whole story assemble, one movie at a time.</p>
+    </div>
+    <div class="filter-row" id="filterRow">
+      <button class="filter-btn active" data-filter="all">All Films</button>
+      <button class="filter-btn" data-filter="1">Phase 1</button>
+      <button class="filter-btn" data-filter="2">Phase 2</button>
+      <button class="filter-btn" data-filter="3">Phase 3</button>
+      <button class="filter-btn" data-filter="4">Phase 4</button>
+      <button class="filter-btn" data-filter="5">Phase 5</button>
+      <button class="filter-btn" data-filter="6">Phase 6</button>
+      <button class="filter-btn" data-filter="up">Upcoming</button>
+    </div>
+    <div class="movie-grid" id="movieGrid"></div>
+  </div>
+</section>
+
+<!-- STONES -->
+<section id="stones">
+  <div class="wrap">
+    <div class="sec-num">03</div>
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Part Four</div>
+        <h2>The Infinity Stones</h2>
+      </div>
+      <p>Six remnants of the universe's creation, each governing one fundamental force.</p>
+    </div>
+    <div class="stones-grid" id="stonesGrid"></div>
+  </div>
+</section>
+
+<!-- VILLAINS -->
+<section id="villains">
+  <div class="wrap">
+    <div class="sec-num">04</div>
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Part Six</div>
+        <h2>Ranked by Danger</h2>
+      </div>
+      <p>Threat level reflects raw power and scale of ambition — how much of reality was at risk.</p>
+    </div>
+    <div class="threat-list" id="threatList"></div>
+  </div>
+</section>
+
+<!-- MULTIVERSE -->
+<section id="multiverse">
+  <div class="wrap">
+    <div class="sec-num">05</div>
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Part Nine</div>
+        <h2>Every World Has a Number</h2>
+      </div>
+      <p>Marvel labels each universe with an "Earth-" designation. Here are the ones that matter most for the films.</p>
+    </div>
+    <div class="earth-grid" id="earthGrid"></div>
+  </div>
+</section>
+
+<!-- POWER SCALE -->
+<section id="power">
+  <div class="wrap">
+    <div class="sec-num">06</div>
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Part Twelve</div>
+        <h2>Six Tiers of Strength</h2>
+      </div>
+      <p>Bottom to top — each tier can generally overpower everything below it.</p>
+    </div>
+    <div id="tierList"></div>
+  </div>
+</section>
+
+<!-- WATCH ORDER -->
+<section id="watch">
+  <div class="wrap">
+    <div class="sec-num">07</div>
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Part Fourteen</div>
+        <h2>Pick Your Path</h2>
+      </div>
+      <p>There's no wrong order — only the one that suits your time and goals.</p>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div id="tabPanels"></div>
+  </div>
+</section>
+
+<!-- DOOMSDAY -->
+<section id="doomsday" class="doomsday">
+  <div class="wrap">
+    <div class="sec-num">08</div>
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Part Fifteen</div>
+        <h2>The Road to Doomsday</h2>
+      </div>
+      <p>In theaters December 18, 2026. Everything the Multiverse Saga has been building toward.</p>
+    </div>
+    <div class="checklist" id="checklist"></div>
+    <div class="finale-cards">
+      <div class="finale-card">
+        <span class="date">DEC 18, 2026</span>
+        <h4>Avengers: Doomsday</h4>
+        <p>Heroes from three universes — the Avengers, the Fantastic Four and the X-Men — collide against Doom. Directed by the Russo brothers (Infinity War, Endgame).</p>
+      </div>
+      <div class="finale-card">
+        <span class="date">DEC 17, 2027</span>
+        <h4>Avengers: Secret Wars</h4>
+        <p>The finale of Phase Six and the entire Multiverse Saga — expected to resolve the incursions and reset the MCU.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fbrand">The Entire MCU, Explained.</div>
+    <div class="fmeta">FIRST EDITION 2026 · ORIGINAL EDITORIAL DESIGN · NOT AFFILIATED WITH MARVEL</div>
+  </div>
+</footer>
+
+<script>
+// ---------- DATA ----------
+const movies = [
+  {t:"Iron Man",y:2008,p:"1"},{t:"The Incredible Hulk",y:2008,p:"1"},{t:"Iron Man 2",y:2010,p:"1"},
+  {t:"Thor",y:2011,p:"1"},{t:"Captain America: The First Avenger",y:2011,p:"1"},{t:"The Avengers",y:2012,p:"1",m:1},
+  {t:"Iron Man 3",y:2013,p:"2"},{t:"Thor: The Dark World",y:2013,p:"2"},{t:"Captain America: The Winter Soldier",y:2014,p:"2"},
+  {t:"Guardians of the Galaxy",y:2014,p:"2"},{t:"Avengers: Age of Ultron",y:2015,p:"2"},{t:"Ant-Man",y:2015,p:"2"},
+  {t:"Captain America: Civil War",y:2016,p:"3"},{t:"Doctor Strange",y:2016,p:"3"},{t:"Guardians of the Galaxy Vol. 2",y:2017,p:"3"},
+  {t:"Spider-Man: Homecoming",y:2017,p:"3"},{t:"Thor: Ragnarok",y:2017,p:"3"},{t:"Black Panther",y:2018,p:"3"},
+  {t:"Avengers: Infinity War",y:2018,p:"3",m:1},{t:"Ant-Man and the Wasp",y:2018,p:"3"},{t:"Captain Marvel",y:2019,p:"3"},
+  {t:"Avengers: Endgame",y:2019,p:"3",m:1},{t:"Spider-Man: Far From Home",y:2019,p:"3"},
+  {t:"Black Widow",y:2021,p:"4"},{t:"Shang-Chi",y:2021,p:"4"},{t:"Eternals",y:2021,p:"4"},
+  {t:"Spider-Man: No Way Home",y:2021,p:"4",m:1},{t:"Doctor Strange in the Multiverse of Madness",y:2022,p:"4"},
+  {t:"Thor: Love and Thunder",y:2022,p:"4"},{t:"Black Panther: Wakanda Forever",y:2022,p:"4"},
+  {t:"Ant-Man and the Wasp: Quantumania",y:2023,p:"5"},{t:"Guardians of the Galaxy Vol. 3",y:2023,p:"5"},
+  {t:"The Marvels",y:2023,p:"5"},{t:"Deadpool & Wolverine",y:2024,p:"5",m:1},{t:"Captain America: Brave New World",y:2025,p:"5"},
+  {t:"Thunderbolts*",y:2025,p:"5"},{t:"The Fantastic Four: First Steps",y:2025,p:"6",m:1},
+  {t:"Spider-Man: Brand New Day",y:2026,p:"6"},{t:"Avengers: Doomsday",y:"Dec 2026",p:"up",m:1},
+  {t:"Avengers: Secret Wars",y:"Dec 2027",p:"up",m:1}
+];
+
+const stones = [
+  {n:"Space",src:"The Tesseract · Blue",c:"var(--blue)",d:"Opens portals anywhere in existence. Powered the Tesseract that HYDRA and Loki fought over."},
+  {n:"Mind",src:"Loki's Sceptre · Yellow",c:"#e0c141",d:"Controls minds and consciousness. Hidden in Loki's scepter; later gave life to Vision."},
+  {n:"Reality",src:"The Aether · Red",c:"var(--crimson)",d:"Bends reality and matter to the user's will. Appeared as the liquid Aether in Thor: The Dark World."},
+  {n:"Power",src:"The Orb · Purple",c:"var(--purple)",d:"Immense destructive energy. Sealed in the Orb the Guardians fought over on Xandar."},
+  {n:"Time",src:"Eye of Agamotto · Green",c:"var(--green)",d:"Rewinds, fast-forwards and loops time. Worn by Doctor Strange as the Eye of Agamotto."},
+  {n:"Soul",src:"Vormir · Orange",c:"#e08a3d",d:"Governs life and the soul itself. Demands \"a soul for a soul\" — the sacrifice on Vormir."}
+];
+
+const threats = [
+  {n:"Thanos",g:"erase half of all life",pct:96,c:"var(--crimson)"},
+  {n:"Doctor Doom",g:"rule the Multiverse",pct:94,c:"var(--crimson)"},
+  {n:"Kang the Conqueror",g:"conquer all timelines",pct:90,c:"var(--crimson)"},
+  {n:"Dormammu",g:"consume the universe",pct:78,c:"#e0a23d"},
+  {n:"Hela",g:"Goddess of Death",pct:72,c:"#e0a23d"},
+  {n:"Scarlet Witch",g:"grief-driven, Multiverse of Madness",pct:70,c:"#e0a23d"},
+  {n:"The High Evolutionary",g:"engineer a perfect species",pct:58,c:"var(--gold)"},
+  {n:"Gorr the God Butcher",g:"kill every god",pct:56,c:"var(--gold)"},
+  {n:"Ultron",g:"\"save\" Earth by ending humanity",pct:52,c:"var(--gold)"},
+  {n:"Green Goblin",g:"break Spider-Man",pct:30,c:"var(--blue)"},
+  {n:"Red Skull",g:"HYDRA world domination",pct:28,c:"var(--blue)"},
+  {n:"Kingpin",g:"rule New York's underworld",pct:22,c:"var(--blue)"}
+];
+
+const earths = [
+  {id:"616",n:"The Sacred Timeline",d:"The main MCU — where Iron Man, the Avengers and nearly everything you've seen takes place."},
+  {id:"838",n:"The Illuminati's World",d:"Visited in Doctor Strange in the Multiverse of Madness — home to a different roster of heroes."},
+  {id:"828",n:"The Fantastic Four",d:"The retro-1960s reality of The Fantastic Four: First Steps (2025) — Marvel's First Family."},
+  {id:"10005",n:"The Fox X-Men",d:"Two decades of X-Men films. Its heroes finally cross into the MCU via the Multiverse."},
+  {id:"Sony",n:"The Spider-Verse",d:"Sony's Spider-Man worlds — bridged in No Way Home, where three Spider-Men met."},
+  {id:"WI",n:"Animated Realities",d:"The What If…? series explores countless \"what could have happened\" branches — all canon."}
+];
+
+const tiers = [
+  {n:"Abstract / Cosmic",tag:"Tier 6 · Reality-Defining",c:"var(--purple)",m:"The Living Tribunal · The Watchers · Eternity · (Galactus)"},
+  {n:"Multiversal",tag:"Tier 5 · Warps Reality",c:"var(--crimson)",m:"Scarlet Witch · Doctor Doom · Kang variants · Dormammu"},
+  {n:"Cosmic-powered",tag:"Tier 4 · Planet-Level",c:"#e0a23d",m:"Captain Marvel · Thanos · Hela · Gorr · Jean Grey (Phoenix)"},
+  {n:"Gods & Sorcerers",tag:"Tier 3 · City-Level",c:"var(--gold)",m:"Thor · Doctor Strange · Vision · Hulk"},
+  {n:"Enhanced",tag:"Tier 2 · Superhuman",c:"var(--green)",m:"Captain America · Spider-Man · Black Panther · Wolverine · Shang-Chi"},
+  {n:"Street Level",tag:"Tier 1 · Peak Human",c:"var(--blue)",m:"Iron Man (armor) · Black Widow · Hawkeye · Daredevil · Kingpin"}
+];
+
+const watchOrders = [
+  {k:"beginner",label:"Absolute Beginner",tag:"~8 Films",steps:["Iron Man","The Avengers","Winter Soldier","Guardians of the Galaxy","Infinity War","Endgame","No Way Home","Deadpool & Wolverine"],note:"The greatest hits — the fastest way to understand why the MCU matters."},
+  {k:"release",label:"Release Order",tag:"The Classic",steps:["Iron Man (2008)","→ everything after, in the order it premiered"],note:"The way the story was meant to unfold, with every surprise intact."},
+  {k:"chrono",label:"Chronological",tag:"In-Story Time",steps:["Captain America: The First Avenger","Captain Marvel","→ forward through in-universe time"],note:"By in-universe timeline: starts in the 1940s, then the 1990s, then forward."},
+  {k:"family",label:"Family-Friendly",tag:"Lighter Tone",steps:["Avengers films","Guardians of the Galaxy","Ant-Man","Spider-Man","Black Panther","Captain Marvel"],note:"Skips the R-rated and darker entries."},
+  {k:"doomsday",label:"Doomsday Prep",tag:"The Shortcut",steps:["Endgame","Loki (S1–2)","No Way Home","Multiverse of Madness","Deadpool & Wolverine","Thunderbolts*","Fantastic Four: First Steps"],note:"Endgame → Doomsday. Everything you need and nothing you don't."},
+  {k:"complete",label:"Ultimate Completionist",tag:"Everything",steps:["Every film and series","→ woven in timeline order, including What If…? branches"],note:"The full journey — every film, every series, every branch."}
+];
+
+const checklistData = [
+  {t:"The Fantastic Four exist",tag:"canon",d:"Introduced in First Steps (2025) from their own universe, Earth-828."},
+  {t:"Doctor Doom is the villain",tag:"canon",d:"Played by Robert Downey Jr. — revealed at Comic-Con in July 2024."},
+  {t:"The Multiverse is unstable",tag:"canon",d:"Incursions are destroying realities — the crisis Doom exploits."},
+  {t:"Kang was set up, then dropped",tag:"theory",d:"Marvel pivoted the saga's big bad from Kang to Doom; expect the story to bridge that."},
+  {t:"Loki anchors the timeline",tag:"canon",d:"At the end of his series, Loki becomes the being holding the branching timelines together."},
+  {t:"The New Avengers assembled",tag:"canon",d:"Thunderbolts* (2025) reveals its team as the world's New Avengers."},
+  {t:"Deadpool & the X-Men are in",tag:"canon",d:"Deadpool & Wolverine (2024) folded the Fox mutants into the Multiverse."},
+  {t:"Secret Wars is the finale",tag:"canon",d:"Doomsday leads directly into Avengers: Secret Wars (Dec 2027)."}
+];
+
+// ---------- RENDER ----------
+function renderMovies(filter){
+  const grid = document.getElementById('movieGrid');
+  grid.innerHTML = '';
+  movies.filter(x=> filter==='all' || x.p===filter).forEach(x=>{
+    const card = document.createElement('div');
+    card.className = 'movie-card' + (x.m ? ' milestone' : '');
+    card.setAttribute('data-phase', x.p);
+    card.innerHTML = `<div class="title">${x.t}${x.m ? ' <span class="star">★</span>' : ''}</div><div class="yr mono">${x.y}</div>`;
+    grid.appendChild(card);
+  });
+}
+renderMovies('all');
+
+document.getElementById('filterRow').addEventListener('click', e=>{
+  if(e.target.classList.contains('filter-btn')){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    renderMovies(e.target.dataset.filter);
+  }
+});
+
+const stonesGrid = document.getElementById('stonesGrid');
+stones.forEach(s=>{
+  const el = document.createElement('div');
+  el.className = 'stone-card reveal';
+  el.style.setProperty('--stone-color', s.c);
+  el.innerHTML = `<div class="dot"></div><h4>${s.n}</h4><span class="src mono">${s.src}</span><p>${s.d}</p>`;
+  stonesGrid.appendChild(el);
+});
+
+const threatList = document.getElementById('threatList');
+threats.forEach(t=>{
+  const row = document.createElement('div');
+  row.className = 'threat-row reveal';
+  row.innerHTML = `
+    <div class="threat-name">${t.n}<span class="threat-goal">${t.g}</span></div>
+    <div class="threat-bar-bg"><div class="threat-bar" data-pct="${t.pct}" style="background:${t.c}"></div></div>`;
+  threatList.appendChild(row);
+});
+
+const earthGrid = document.getElementById('earthGrid');
+earths.forEach(e=>{
+  const el = document.createElement('div');
+  el.className = 'earth-card reveal';
+  el.innerHTML = `<div class="id mono">${e.id}</div><h4>${e.n}</h4><p>${e.d}</p>`;
+  earthGrid.appendChild(el);
+});
+
+const tierList = document.getElementById('tierList');
+tiers.forEach(t=>{
+  const el = document.createElement('div');
+  el.className = 'tier reveal';
+  el.style.setProperty('--tier-color', t.c);
+  el.innerHTML = `<div><div class="tname">${t.n}</div><div class="ttag">${t.tag}</div></div><div class="tmembers">${t.m}</div>`;
+  tierList.appendChild(el);
+});
+
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('tabPanels');
+watchOrders.forEach((w,i)=>{
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (i===0 ? ' active' : '');
+  btn.textContent = w.label;
+  btn.dataset.k = w.k;
+  tabsEl.appendChild(btn);
+
+  const panel = document.createElement('div');
+  panel.className = 'tab-panel' + (i===0 ? ' active' : '');
+  panel.dataset.k = w.k;
+  const stepsHtml = w.steps.map((s,idx)=> idx===0 ? `<div class="order-step">${s}</div>` : `<span class="order-arrow">→</span><div class="order-step">${s}</div>`).join('');
+  panel.innerHTML = `<div class="order-flow">${stepsHtml}</div><p class="order-note">${w.note} <span class="mono" style="color:var(--gold);">${w.tag}</span></p>`;
+  panelsEl.appendChild(panel);
+});
+tabsEl.addEventListener('click', e=>{
+  if(e.target.classList.contains('tab-btn')){
+    const k = e.target.dataset.k;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.k===k));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.dataset.k===k));
+  }
+});
+
+const checklistEl = document.getElementById('checklist');
+checklistData.forEach((c,i)=>{
+  const el = document.createElement('div');
+  el.className = 'check-item reveal';
+  el.innerHTML = `<div class="check-num">0${i+1}</div><div><h5>${c.t}<span class="tag ${c.tag}">${c.tag}</span></h5><p>${c.d}</p></div>`;
+  checklistEl.appendChild(el);
+});
+
+// ---------- NAV TOGGLE ----------
+document.getElementById('navToggle').addEventListener('click', ()=>{
+  document.getElementById('navLinks').classList.toggle('open');
+});
+document.querySelectorAll('.navlinks a').forEach(a=>{
+  a.addEventListener('click', ()=> document.getElementById('navLinks').classList.remove('open'));
+});
+
+// ---------- SCROLL REVEAL ----------
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      en.target.classList.add('in');
+      if(en.target.classList.contains('threat-row')){
+        const bar = en.target.querySelector('.threat-bar');
+        if(bar) bar.style.width = bar.dataset.pct + '%';
+      }
+      io.unobserve(en.target);
+    }
+  });
+}, {threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+</script>
+</body>
+</html>
